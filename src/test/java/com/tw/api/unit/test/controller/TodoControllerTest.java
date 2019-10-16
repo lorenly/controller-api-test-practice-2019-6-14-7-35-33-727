@@ -33,7 +33,7 @@ public class TodoControllerTest {
     private TodoRepository todoRepository;
 
     @Test
-    public void getALL() throws Exception{
+    public void should_get_all_Todo() throws Exception{
         //given
         List<Todo> todoList = new ArrayList<>();
         Todo todo = new Todo(1, "Sample Test", false, 5);
@@ -53,5 +53,25 @@ public class TodoControllerTest {
                 .andExpect(jsonPath("$[0].order", is(5)));
     }
 
+    @Test
+    public void should_get_Todo() throws Exception{
+        //given
+        List<Todo> todoList = new ArrayList<>();
+        Todo todo = new Todo(1, "Sample Test", false, 5);
+        Todo newTodo = new Todo(2, "New Sample Test", false, 6);
+        todoList.add(todo);
+        todoList.add(newTodo);
+        when(todoRepository.findById(2)).thenReturn(java.util.Optional.ofNullable(todoList.get(1)));
 
+        //when
+        ResultActions resultActions = mvc.perform(get("/todos/2"));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.id", is(2)))
+                .andExpect(jsonPath("$.title", is("New Sample Test")))
+                .andExpect(jsonPath("$.completed", is(false)))
+                .andExpect(jsonPath("$.order", is(6)));
+    }
 }
