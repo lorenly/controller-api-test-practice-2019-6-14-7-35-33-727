@@ -95,7 +95,7 @@ public class TodoControllerTest {
     }
 
     @Test
-    public void should_delete_Todo() throws Exception{
+    public void should_delete_Todo_by_Id() throws Exception{
         //given
         Todo todo = new Todo(1, "Sample Test", false, 5);
         todoRepository.add(todo);
