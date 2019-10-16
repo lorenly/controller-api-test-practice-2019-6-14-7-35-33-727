@@ -9,14 +9,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.server.handler.ExceptionHandlingWebHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -73,5 +76,22 @@ public class TodoControllerTest {
                 .andExpect(jsonPath("$.title", is("New Sample Test")))
                 .andExpect(jsonPath("$.completed", is(false)))
                 .andExpect(jsonPath("$.order", is(6)));
+    }
+
+    @Test
+    public void should_save_Todo() throws Exception{
+        Todo todo = new Todo(1, "Sample Test", false, 5);
+        todoRepository.add(todo);
+        when(todoRepository.findById(1)).thenReturn(Optional.of(todo));
+
+        //when
+        ResultActions resultActions = mvc.perform(post("/todos").contentType("application/json").content(objectMapper.writeValueAsString(todo)));
+        //then
+        resultActions.andExpect(status().isCreated())
+                .andDo(print())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Sample Test"))
+                .andExpect(jsonPath("$.completed").value(false))
+                .andExpect(jsonPath("$.order").value(5));
     }
 }
