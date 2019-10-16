@@ -18,8 +18,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -57,7 +56,7 @@ public class TodoControllerTest {
     }
 
     @Test
-    public void should_get_Todo() throws Exception{
+    public void should_get_Todo_by_Id() throws Exception{
         //given
         List<Todo> todoList = new ArrayList<>();
         Todo todo = new Todo(1, "Sample Test", false, 5);
@@ -93,5 +92,20 @@ public class TodoControllerTest {
                 .andExpect(jsonPath("$.title").value("Sample Test"))
                 .andExpect(jsonPath("$.completed").value(false))
                 .andExpect(jsonPath("$.order").value(5));
+    }
+
+    @Test
+    public void should_delete_Todo() throws Exception{
+        //given
+        Todo todo = new Todo(1, "Sample Test", false, 5);
+        todoRepository.add(todo);
+        when(todoRepository.findById(1)).thenReturn(Optional.of(todo));
+
+        //when
+        ResultActions resultActions = mvc.perform(delete("/todos/1"));
+
+        //then
+        resultActions.andExpect(status().isOk());
+
     }
 }
